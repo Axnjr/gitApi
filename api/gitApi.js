@@ -1,17 +1,12 @@
 const express = require("express");
-const path = require("path");
+const router = express.Router({ mergeParams: true })
 const { Octokit } = require("@octokit/core");
-const PORT = process.env.PORT || 16108;
 const GITHUB_ACESS_TOKEN = process.env.GITHUB_ACESS_TOKEN || "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";
 const octokit = new Octokit({ auth: GITHUB_ACESS_TOKEN });
-const app = express()
 
 const GitDataAsync = (name) => { return octokit.request(`GET /users/${name}/repos`) }
 
-app.use(express.static(path.join(__dirname, "public")));
-console.log(path.join(__dirname, "public"))
-
-app.use("/data/dede/:userName/:repoName" , (req,res) => {
+router.use("/" , (req,res) => {
 
 	GitDataAsync(req.params.userName)
     .then((response) => 
@@ -34,14 +29,12 @@ app.use("/data/dede/:userName/:repoName" , (req,res) => {
         {
             ERROR:`Either user was not found or he/she does not has the repository you specified !!!`,
             STATUS:err.status,
-            "TOTAL REPOSITORIES":response.data.length,
             "USER NAME SPECIFIED":req.params.userName,
-            "REPOSITORY NAME SPECIFIED":req.params.repoName
+            "REPOSITORY NAME SPECIFIED":req.params.repoName,
+            errrrr:err
         }
     ));
 
 });
 
-app.listen(PORT, () => {
-  	console.log("done", __dirname);
-});
+module.exports = { router }
